@@ -18,8 +18,8 @@ export class SesionService {
     ownerName?: string;
     type?: TipoVehiculo;
   }) {
-    if (!data.licensePlate) {
-      throw { status: 422, message: "licensePlate es obligatorio" };
+    if (!data.licensePlate || typeof data.licensePlate !== "string") {
+      throw { status: 422, message: "licensePlate es obligatorio y debe ser un string" };
     }
 
     // 1) Buscar el vehículo, o crearlo si es patente nueva

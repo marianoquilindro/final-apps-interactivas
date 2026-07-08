@@ -13,8 +13,11 @@ export class AbonoService {
   }
 
   static async crear(data: { vehicleId: number; spotId: number }) {
-    if (!data.vehicleId || !data.spotId) {
-      throw { status: 422, message: "vehicleId y spotId son obligatorios" };
+    if (
+      !data.vehicleId || typeof data.vehicleId !== "number" ||
+      !data.spotId || typeof data.spotId !== "number"
+    ) {
+      throw { status: 422, message: "vehicleId y spotId son obligatorios y deben ser numéricos" };
     }
 
     // 1) Validar que el vehículo exista y no esté BLOCKED
