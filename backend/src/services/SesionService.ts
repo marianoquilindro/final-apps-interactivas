@@ -21,6 +21,7 @@ export class SesionService {
     if (!data.licensePlate || typeof data.licensePlate !== "string") {
       throw { status: 422, message: "licensePlate es obligatorio y debe ser un string" };
     }
+    data.licensePlate = data.licensePlate.trim().toUpperCase();
 
     // 1) Buscar el vehículo, o crearlo si es patente nueva
     let vehiculo = await VehiculoRepository.findByLicensePlate(data.licensePlate);

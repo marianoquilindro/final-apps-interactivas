@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSesiones, checkout } from "../services/sesionService";
 import { getVehiculos } from "../services/vehiculoService";
+import { getEspacios } from "../services/espacioService";
 import Table from "../components/Table";
 import ErrorMessage from "../components/ErrorMessage";
 
@@ -9,18 +10,24 @@ function SessionsPage() {
   const [vehiculos, setVehiculos] = useState([]);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [espacios, setEspacios] = useState([]);
 
   const cargarDatos = async () => {
-    try {
-      const [resSesiones, resVehiculos] = await Promise.all([getSesiones(), getVehiculos()]);
-      setSesiones(resSesiones.data);
-      setVehiculos(resVehiculos.data);
-    } catch (err) {
-      setError("Error al cargar las sesiones");
-    } finally {
-      setCargando(false);
-    }
-  };
+  try {
+    const [resSesiones, resVehiculos, resEspacios] = await Promise.all([
+      getSesiones(),
+      getVehiculos(),
+      getEspacios(),
+    ]);
+    setSesiones(resSesiones.data);
+    setVehiculos(resVehiculos.data);
+    setEspacios(resEspacios.data);
+  } catch (err) {
+    setError("Error al cargar las sesiones");
+  } finally {
+    setCargando(false);
+  }
+};
 
   useEffect(() => {
     cargarDatos();
@@ -41,11 +48,17 @@ function SessionsPage() {
     return v ? v.licensePlate : id;
   };
 
+
+  const numeroEspacio = (spotId) => {
+  const e = espacios.find((e) => e.id === spotId);
+  return e ? e.number : spotId;
+};
+
   const formatearFecha = (fecha) => (fecha ? new Date(fecha).toLocaleString() : "-");
 
   const columns = [
     { key: "vehicleId", label: "Vehículo", render: (row) => nombreVehiculo(row.vehicleId) },
-    { key: "spotId", label: "Espacio" },
+    { key: "spotId", label: "Espacio", render: (row) => `#${numeroEspacio(row.spotId)}` },
     { key: "entryTime", label: "Ingreso", render: (row) => formatearFecha(row.entryTime) },
     { key: "exitTime", label: "Egreso", render: (row) => formatearFecha(row.exitTime) },
     {

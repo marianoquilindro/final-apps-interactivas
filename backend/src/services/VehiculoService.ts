@@ -23,6 +23,7 @@ export class VehiculoService {
     if (!Object.values(TipoVehiculo).includes(data.type)) {
       throw { status: 422, message: "type inválido" };
     }
+    data.licensePlate = data.licensePlate.trim().toUpperCase();
 
     if (data.status && !Object.values(EstadoVehiculo).includes(data.status)) {
       throw { status: 422, message: "status inválido" };

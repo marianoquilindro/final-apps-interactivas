@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { checkIn } from "../services/sesionService";
+import { getEspacios } from "../services/espacioService";
 import ErrorMessage from "../components/ErrorMessage";
 
 function SessionFormPage() {
@@ -8,6 +9,18 @@ function SessionFormPage() {
   const [type, setType] = useState("CAR");
   const [error, setError] = useState("");
   const [exito, setExito] = useState(null);
+  const [espacios, setEspacios] = useState([]);
+
+  useEffect(() => {
+    getEspacios()
+      .then((res) => setEspacios(res.data))
+      .catch(() => {});
+  }, []);
+
+  const numeroEspacio = (spotId) => {
+    const e = espacios.find((e) => e.id === spotId);
+    return e ? e.number : spotId;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,8 +33,6 @@ function SessionFormPage() {
     }
 
     const payload = { licensePlate };
-    // Solo mandamos ownerName/type si el usuario los completó
-    // (el backend los exige únicamente si la patente es nueva)
     if (ownerName) payload.ownerName = ownerName;
     if (type) payload.type = type;
 
@@ -81,7 +92,7 @@ function SessionFormPage() {
             marginTop: "12px",
           }}
         >
-          Ingreso registrado con éxito. Espacio asignado: #{exito.spotId}
+          Ingreso registrado con éxito. Espacio asignado: #{numeroEspacio(exito.spotId)}
           {exito.subscriptionId ? " (vehículo abonado, sin costo)" : ""}
         </div>
       )}

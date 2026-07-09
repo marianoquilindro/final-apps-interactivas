@@ -70,9 +70,14 @@ function SubscriptionsPage() {
     return v ? v.licensePlate : id;
   };
 
+  const numeroEspacio = (spotId) => {
+  const e = espacios.find((e) => e.id === spotId);
+  return e ? e.number : spotId;
+};
+
   const columns = [
     { key: "vehicleId", label: "Vehículo", render: (row) => nombreVehiculo(row.vehicleId) },
-    { key: "spotId", label: "Espacio" },
+    { key: "spotId", label: "Espacio", render: (row) => `#${numeroEspacio(row.spotId)}` },
     { key: "startDate", label: "Inicio", render: (row) => new Date(row.startDate).toLocaleDateString() },
     { key: "endDate", label: "Vencimiento", render: (row) => new Date(row.endDate).toLocaleDateString() },
     { key: "amountDue", label: "Monto" },
