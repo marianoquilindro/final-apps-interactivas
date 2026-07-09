@@ -1,18 +1,36 @@
 import { useState, useEffect } from "react";
 import { getEspacios, crearEspacio, actualizarEspacio } from "../services/espacioService";
+import { getSesiones } from "../services/sesionService";
+import { getAbonos } from "../services/abonoService";
 import Table from "../components/Table";
 import ErrorMessage from "../components/ErrorMessage";
 
 function SpotsPage() {
   const [espacios, setEspacios] = useState([]);
+  const [spotIdsOcupados, setSpotIdsOcupados] = useState(new Set());
   const [numero, setNumero] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
 
   const cargarEspacios = async () => {
     try {
-      const res = await getEspacios();
-      setEspacios(res.data);
+      const [resEspacios, resSesiones, resAbonos] = await Promise.all([
+        getEspacios(),
+        getSesiones(),
+        getAbonos(),
+      ]);
+
+      setEspacios(resEspacios.data);
+
+      // Un espacio está ocupado si tiene una sesión ACTIVE o un abono ACTIVE reservándolo
+      const idsConSesionActiva = resSesiones.data
+        .filter((s) => s.status === "ACTIVE")
+        .map((s) => s.spotId);
+      const idsConAbonoActivo = resAbonos.data
+        .filter((a) => a.status === "ACTIVE")
+        .map((a) => a.spotId);
+
+      setSpotIdsOcupados(new Set([...idsConSesionActiva, ...idsConAbonoActivo]));
     } catch (err) {
       setError("Error al cargar los espacios");
     } finally {
@@ -53,8 +71,35 @@ function SpotsPage() {
   };
 
   const columns = [
-    { key: "number", label: "Número" },
-    { key: "status", label: "Estado" },
+    {
+      key: "number",
+      label: "Número",
+      render: (row) => <span className="mono">#{row.number}</span>,
+    },
+    {
+      key: "status",
+      label: "Estado",
+      render: (row) => (
+        <span className={`badge ${row.status === "AVAILABLE" ? "badge-success" : "badge-danger"}`}>
+          {row.status === "AVAILABLE" ? "Disponible" : "Fuera de servicio"}
+        </span>
+      ),
+    },
+    {
+      key: "ocupacion",
+      label: "Ocupación",
+      render: (row) => {
+        if (row.status === "OUT_OF_SERVICE") {
+          return <span style={{ color: "var(--text-muted)" }}>—</span>;
+        }
+        const ocupado = spotIdsOcupados.has(row.id);
+        return (
+          <span className={`badge ${ocupado ? "badge-danger" : "badge-success"}`}>
+            {ocupado ? "Ocupado" : "Libre"}
+          </span>
+        );
+      },
+    },
   ];
 
   if (cargando) return <p>Cargando...</p>;
@@ -62,18 +107,16 @@ function SpotsPage() {
   return (
     <div>
       <h1>Espacios</h1>
+      <p className="subtitle">Estado y disponibilidad de cada espacio de la cochera.</p>
 
-      <form onSubmit={handleCrear} style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
+      <form onSubmit={handleCrear} className="form-row">
         <input
           type="number"
           placeholder="Número de espacio"
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
-          style={{ padding: "8px" }}
         />
-        <button type="submit" style={{ padding: "8px 16px" }}>
-          Crear espacio
-        </button>
+        <button type="submit">Crear espacio</button>
       </form>
 
       <ErrorMessage message={error} />
@@ -82,7 +125,7 @@ function SpotsPage() {
         columns={columns}
         data={espacios}
         renderActions={(espacio) => (
-          <button onClick={() => handleToggleStatus(espacio)} style={{ padding: "6px 12px" }}>
+          <button className="secondary" onClick={() => handleToggleStatus(espacio)}>
             {espacio.status === "AVAILABLE" ? "Marcar fuera de servicio" : "Marcar disponible"}
           </button>
         )}

@@ -64,24 +64,35 @@ function SubscriptionsPage() {
     }
   };
 
-  // Helper para mostrar la patente en vez del vehicleId crudo
   const nombreVehiculo = (id) => {
     const v = vehiculos.find((v) => v.id === id);
     return v ? v.licensePlate : id;
   };
 
   const numeroEspacio = (spotId) => {
-  const e = espacios.find((e) => e.id === spotId);
-  return e ? e.number : spotId;
-};
+    const e = espacios.find((e) => e.id === spotId);
+    return e ? e.number : spotId;
+  };
 
   const columns = [
-    { key: "vehicleId", label: "Vehículo", render: (row) => nombreVehiculo(row.vehicleId) },
-    { key: "spotId", label: "Espacio", render: (row) => `#${numeroEspacio(row.spotId)}` },
+    {
+      key: "vehicleId",
+      label: "Vehículo",
+      render: (row) => <span className="plate">{nombreVehiculo(row.vehicleId)}</span>,
+    },
+    { key: "spotId", label: "Espacio", render: (row) => <span className="mono">#{numeroEspacio(row.spotId)}</span> },
     { key: "startDate", label: "Inicio", render: (row) => new Date(row.startDate).toLocaleDateString() },
     { key: "endDate", label: "Vencimiento", render: (row) => new Date(row.endDate).toLocaleDateString() },
-    { key: "amountDue", label: "Monto" },
-    { key: "status", label: "Estado" },
+    { key: "amountDue", label: "Monto", render: (row) => <span className="mono">${row.amountDue}</span> },
+    {
+      key: "status",
+      label: "Estado",
+      render: (row) => (
+        <span className={`badge ${row.status === "ACTIVE" ? "badge-success" : "badge-neutral"}`}>
+          {row.status === "ACTIVE" ? "Activo" : "Finalizado"}
+        </span>
+      ),
+    },
   ];
 
   if (cargando) return <p>Cargando...</p>;
@@ -89,9 +100,10 @@ function SubscriptionsPage() {
   return (
     <div>
       <h1>Abonos</h1>
+      <p className="subtitle">Reservas mensuales de espacio para vehículos frecuentes.</p>
 
-      <form onSubmit={handleCrear} style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
-        <select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} style={{ padding: "8px" }}>
+      <form onSubmit={handleCrear} className="form-row">
+        <select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
           <option value="">Seleccionar vehículo</option>
           {vehiculos.map((v) => (
             <option key={v.id} value={v.id}>
@@ -100,7 +112,7 @@ function SubscriptionsPage() {
           ))}
         </select>
 
-        <select value={spotId} onChange={(e) => setSpotId(e.target.value)} style={{ padding: "8px" }}>
+        <select value={spotId} onChange={(e) => setSpotId(e.target.value)}>
           <option value="">Seleccionar espacio</option>
           {espacios.map((e) => (
             <option key={e.id} value={e.id}>
@@ -109,9 +121,7 @@ function SubscriptionsPage() {
           ))}
         </select>
 
-        <button type="submit" style={{ padding: "8px 16px" }}>
-          Crear abono
-        </button>
+        <button type="submit">Crear abono</button>
       </form>
 
       <ErrorMessage message={error} />
@@ -121,11 +131,11 @@ function SubscriptionsPage() {
         data={abonos}
         renderActions={(abono) =>
           abono.status === "ACTIVE" ? (
-            <button onClick={() => handleCortar(abono)} style={{ padding: "6px 12px" }}>
+            <button className="secondary" onClick={() => handleCortar(abono)}>
               Cortar abono
             </button>
           ) : (
-            <span style={{ color: "#999" }}>Finalizado</span>
+            <span style={{ color: "var(--text-muted)" }}>—</span>
           )
         }
       />

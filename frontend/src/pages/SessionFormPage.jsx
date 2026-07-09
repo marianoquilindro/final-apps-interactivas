@@ -50,50 +50,38 @@ function SessionFormPage() {
   return (
     <div>
       <h1>Ingreso de vehículo</h1>
-      <p style={{ color: "#666", marginTop: "8px" }}>
-        Ingresá la patente. Si el vehículo ya tiene un abono vigente, se registrará el ingreso sin
-        cobrar. Si es un vehículo nuevo, completá también el nombre del dueño y el tipo.
+      <p className="subtitle">
+        Ingresá la patente. Si el vehículo tiene un abono vigente, el ingreso queda sin costo. Si es
+        una patente nueva, completá también el dueño y el tipo.
       </p>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
+      <form onSubmit={handleSubmit} className="form-row">
         <input
           type="text"
           placeholder="Patente"
           value={licensePlate}
           onChange={(e) => setLicensePlate(e.target.value)}
-          style={{ padding: "8px" }}
         />
         <input
           type="text"
           placeholder="Nombre del dueño (si es nuevo)"
           value={ownerName}
           onChange={(e) => setOwnerName(e.target.value)}
-          style={{ padding: "8px" }}
         />
-        <select value={type} onChange={(e) => setType(e.target.value)} style={{ padding: "8px" }}>
-          <option value="CAR">CAR</option>
-          <option value="MOTORCYCLE">MOTORCYCLE</option>
-          <option value="PICKUP">PICKUP</option>
+        <select value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="CAR">Auto</option>
+          <option value="MOTORCYCLE">Moto</option>
+          <option value="PICKUP">Camioneta</option>
         </select>
-        <button type="submit" style={{ padding: "8px 16px" }}>
-          Registrar ingreso
-        </button>
+        <button type="submit">Registrar ingreso</button>
       </form>
 
       <ErrorMessage message={error} />
 
       {exito && (
-        <div
-          style={{
-            backgroundColor: "#dcfce7",
-            color: "#166534",
-            padding: "12px 16px",
-            borderRadius: "6px",
-            marginTop: "12px",
-          }}
-        >
-          Ingreso registrado con éxito. Espacio asignado: #{numeroEspacio(exito.spotId)}
-          {exito.subscriptionId ? " (vehículo abonado, sin costo)" : ""}
+        <div className="success-message">
+          Ingreso registrado. Espacio asignado: <span className="mono">#{numeroEspacio(exito.spotId)}</span>
+          {exito.subscriptionId ? " · vehículo abonado, sin costo" : ""}
         </div>
       )}
     </div>

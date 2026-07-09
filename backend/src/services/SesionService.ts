@@ -84,7 +84,8 @@ export class SesionService {
     let espacioAsignado = null;
     for (const espacio of espaciosDisponibles) {
       const reservadoPorAbono = await AbonoRepository.findActiveBySpot(espacio.id);
-      if (!reservadoPorAbono) {
+      const ocupadoPorSesion = await SesionRepository.findActiveBySpot(espacio.id);
+      if (!reservadoPorAbono && !ocupadoPorSesion) {
         espacioAsignado = espacio;
         break;
       }

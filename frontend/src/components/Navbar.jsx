@@ -1,44 +1,29 @@
 import { NavLink } from "react-router-dom";
 
 function Navbar() {
-  const linkStyle = ({ isActive }) => ({
-    padding: "10px 16px",
-    textDecoration: "none",
-    color: isActive ? "#fff" : "#ccc",
-    backgroundColor: isActive ? "#2563eb" : "transparent",
-    borderRadius: "6px",
-    fontWeight: 500,
-  });
+  const linkClass = ({ isActive }) => `nav-link${isActive ? " active" : ""}`;
 
   return (
-    <nav
-      style={{
-        display: "flex",
-        gap: "8px",
-        padding: "12px 20px",
-        backgroundColor: "#1a1a1a",
-        flexWrap: "wrap",
-      }}
-    >
-      <NavLink to="/" style={linkStyle} end>
+    <nav className="navbar">
+      <NavLink to="/" className={linkClass} end>
         Espacios
       </NavLink>
-      <NavLink to="/vehicles" style={linkStyle}>
+      <NavLink to="/vehicles" className={linkClass}>
         Vehículos
       </NavLink>
-      <NavLink to="/rates" style={linkStyle}>
+      <NavLink to="/rates" className={linkClass}>
         Tarifas
       </NavLink>
-      <NavLink to="/subscriptions" style={linkStyle}>
+      <NavLink to="/subscriptions" className={linkClass}>
         Abonos
       </NavLink>
-      <NavLink to="/check-in" style={linkStyle}>
+      <NavLink to="/check-in" className={linkClass}>
         Ingreso
       </NavLink>
-      <NavLink to="/sessions" style={linkStyle}>
+      <NavLink to="/sessions" className={linkClass}>
         Sesiones
       </NavLink>
-      <NavLink to="/occupancy" style={linkStyle}>
+      <NavLink to="/occupancy" className={linkClass}>
         Ocupación
       </NavLink>
     </nav>

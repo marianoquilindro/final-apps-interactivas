@@ -1,31 +1,25 @@
 function Table({ columns, data, renderActions }) {
   if (!data || data.length === 0) {
-    return <p style={{ padding: "16px", color: "#666" }}>No hay datos para mostrar.</p>;
+    return <p style={{ padding: "16px 0", color: "var(--text-muted)" }}>No hay datos para mostrar.</p>;
   }
 
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "12px" }}>
+    <table>
       <thead>
-        <tr style={{ backgroundColor: "#e5e7eb", textAlign: "left" }}>
+        <tr>
           {columns.map((col) => (
-            <th key={col.key} style={{ padding: "10px", borderBottom: "2px solid #ccc" }}>
-              {col.label}
-            </th>
+            <th key={col.key}>{col.label}</th>
           ))}
-          {renderActions && (
-            <th style={{ padding: "10px", borderBottom: "2px solid #ccc" }}>Acciones</th>
-          )}
+          {renderActions && <th>Acciones</th>}
         </tr>
       </thead>
       <tbody>
         {data.map((row) => (
-          <tr key={row.id} style={{ borderBottom: "1px solid #eee" }}>
+          <tr key={row.id}>
             {columns.map((col) => (
-              <td key={col.key} style={{ padding: "10px" }}>
-                {col.render ? col.render(row) : row[col.key]}
-              </td>
+              <td key={col.key}>{col.render ? col.render(row) : row[col.key]}</td>
             ))}
-            {renderActions && <td style={{ padding: "10px" }}>{renderActions(row)}</td>}
+            {renderActions && <td>{renderActions(row)}</td>}
           </tr>
         ))}
       </tbody>

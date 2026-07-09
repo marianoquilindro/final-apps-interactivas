@@ -4,7 +4,7 @@ import ErrorMessage from "../components/ErrorMessage";
 
 function RatesPage() {
   const [tarifas, setTarifas] = useState([]);
-  const [editando, setEditando] = useState(null); // id de la tarifa en edición
+  const [editando, setEditando] = useState(null);
   const [hourlyRate, setHourlyRate] = useState("");
   const [monthlyRate, setMonthlyRate] = useState("");
   const [error, setError] = useState("");
@@ -52,61 +52,67 @@ function RatesPage() {
     }
   };
 
+  const traducirTipo = (type) =>
+    ({ CAR: "Auto", MOTORCYCLE: "Moto", PICKUP: "Camioneta" }[type] || type);
+
   if (cargando) return <p>Cargando...</p>;
 
   return (
     <div>
       <h1>Tarifas</h1>
+      <p className="subtitle">Tarifa vigente por hora y por mes, según tipo de vehículo.</p>
 
       <ErrorMessage message={error} />
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "12px" }}>
+      <table>
         <thead>
-          <tr style={{ backgroundColor: "#e5e7eb", textAlign: "left" }}>
-            <th style={{ padding: "10px" }}>Tipo de vehículo</th>
-            <th style={{ padding: "10px" }}>Tarifa por hora</th>
-            <th style={{ padding: "10px" }}>Tarifa mensual</th>
-            <th style={{ padding: "10px" }}>Acciones</th>
+          <tr>
+            <th>Tipo de vehículo</th>
+            <th>Tarifa por hora</th>
+            <th>Tarifa mensual</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {tarifas.map((tarifa) => (
-            <tr key={tarifa.id} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ padding: "10px" }}>{tarifa.vehicleType}</td>
-              <td style={{ padding: "10px" }}>
+            <tr key={tarifa.id}>
+              <td>{traducirTipo(tarifa.vehicleType)}</td>
+              <td className="mono">
                 {editando === tarifa.id ? (
                   <input
                     type="number"
                     value={hourlyRate}
                     onChange={(e) => setHourlyRate(e.target.value)}
-                    style={{ padding: "6px", width: "100px" }}
+                    style={{ width: "100px" }}
                   />
                 ) : (
                   `$${tarifa.hourlyRate}`
                 )}
               </td>
-              <td style={{ padding: "10px" }}>
+              <td className="mono">
                 {editando === tarifa.id ? (
                   <input
                     type="number"
                     value={monthlyRate}
                     onChange={(e) => setMonthlyRate(e.target.value)}
-                    style={{ padding: "6px", width: "100px" }}
+                    style={{ width: "100px" }}
                   />
                 ) : (
                   `$${tarifa.monthlyRate}`
                 )}
               </td>
-              <td style={{ padding: "10px" }}>
+              <td>
                 {editando === tarifa.id ? (
-                  <>
-                    <button onClick={() => guardarEdicion(tarifa.id)} style={{ marginRight: "6px" }}>
-                      Guardar
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button onClick={() => guardarEdicion(tarifa.id)}>Guardar</button>
+                    <button className="secondary" onClick={cancelarEdicion}>
+                      Cancelar
                     </button>
-                    <button onClick={cancelarEdicion}>Cancelar</button>
-                  </>
+                  </div>
                 ) : (
-                  <button onClick={() => iniciarEdicion(tarifa)}>Editar</button>
+                  <button className="secondary" onClick={() => iniciarEdicion(tarifa)}>
+                    Editar
+                  </button>
                 )}
               </td>
             </tr>

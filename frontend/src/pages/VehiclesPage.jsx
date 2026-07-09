@@ -56,11 +56,22 @@ function VehiclesPage() {
     }
   };
 
+  const traducirTipo = (type) =>
+    ({ CAR: "Auto", MOTORCYCLE: "Moto", PICKUP: "Camioneta" }[type] || type);
+
   const columns = [
-    { key: "licensePlate", label: "Patente" },
+    { key: "licensePlate", label: "Patente", render: (row) => <span className="plate">{row.licensePlate}</span> },
     { key: "ownerName", label: "Dueño" },
-    { key: "type", label: "Tipo" },
-    { key: "status", label: "Estado" },
+    { key: "type", label: "Tipo", render: (row) => traducirTipo(row.type) },
+    {
+      key: "status",
+      label: "Estado",
+      render: (row) => (
+        <span className={`badge ${row.status === "ACTIVE" ? "badge-success" : "badge-danger"}`}>
+          {row.status === "ACTIVE" ? "Activo" : "Bloqueado"}
+        </span>
+      ),
+    },
   ];
 
   if (cargando) return <p>Cargando...</p>;
@@ -68,30 +79,27 @@ function VehiclesPage() {
   return (
     <div>
       <h1>Vehículos</h1>
+      <p className="subtitle">Vehículos registrados en el sistema.</p>
 
-      <form onSubmit={handleCrear} style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
+      <form onSubmit={handleCrear} className="form-row">
         <input
           type="text"
           placeholder="Patente"
           value={licensePlate}
           onChange={(e) => setLicensePlate(e.target.value)}
-          style={{ padding: "8px" }}
         />
         <input
           type="text"
           placeholder="Nombre del dueño"
           value={ownerName}
           onChange={(e) => setOwnerName(e.target.value)}
-          style={{ padding: "8px" }}
         />
-        <select value={type} onChange={(e) => setType(e.target.value)} style={{ padding: "8px" }}>
-          <option value="CAR">CAR</option>
-          <option value="MOTORCYCLE">MOTORCYCLE</option>
-          <option value="PICKUP">PICKUP</option>
+        <select value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="CAR">Auto</option>
+          <option value="MOTORCYCLE">Moto</option>
+          <option value="PICKUP">Camioneta</option>
         </select>
-        <button type="submit" style={{ padding: "8px 16px" }}>
-          Crear vehículo
-        </button>
+        <button type="submit">Crear vehículo</button>
       </form>
 
       <ErrorMessage message={error} />
@@ -100,7 +108,7 @@ function VehiclesPage() {
         columns={columns}
         data={vehiculos}
         renderActions={(vehiculo) => (
-          <button onClick={() => handleToggleStatus(vehiculo)} style={{ padding: "6px 12px" }}>
+          <button className="secondary" onClick={() => handleToggleStatus(vehiculo)}>
             {vehiculo.status === "ACTIVE" ? "Bloquear" : "Activar"}
           </button>
         )}

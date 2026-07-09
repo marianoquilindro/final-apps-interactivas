@@ -8,26 +8,26 @@ import ErrorMessage from "../components/ErrorMessage";
 function SessionsPage() {
   const [sesiones, setSesiones] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
+  const [espacios, setEspacios] = useState([]);
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
-  const [espacios, setEspacios] = useState([]);
 
   const cargarDatos = async () => {
-  try {
-    const [resSesiones, resVehiculos, resEspacios] = await Promise.all([
-      getSesiones(),
-      getVehiculos(),
-      getEspacios(),
-    ]);
-    setSesiones(resSesiones.data);
-    setVehiculos(resVehiculos.data);
-    setEspacios(resEspacios.data);
-  } catch (err) {
-    setError("Error al cargar las sesiones");
-  } finally {
-    setCargando(false);
-  }
-};
+    try {
+      const [resSesiones, resVehiculos, resEspacios] = await Promise.all([
+        getSesiones(),
+        getVehiculos(),
+        getEspacios(),
+      ]);
+      setSesiones(resSesiones.data);
+      setVehiculos(resVehiculos.data);
+      setEspacios(resEspacios.data);
+    } catch (err) {
+      setError("Error al cargar las sesiones");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   useEffect(() => {
     cargarDatos();
@@ -48,25 +48,36 @@ function SessionsPage() {
     return v ? v.licensePlate : id;
   };
 
-
   const numeroEspacio = (spotId) => {
-  const e = espacios.find((e) => e.id === spotId);
-  return e ? e.number : spotId;
-};
+    const e = espacios.find((e) => e.id === spotId);
+    return e ? e.number : spotId;
+  };
 
-  const formatearFecha = (fecha) => (fecha ? new Date(fecha).toLocaleString() : "-");
+  const formatearFecha = (fecha) => (fecha ? new Date(fecha).toLocaleString() : "—");
 
   const columns = [
-    { key: "vehicleId", label: "Vehículo", render: (row) => nombreVehiculo(row.vehicleId) },
-    { key: "spotId", label: "Espacio", render: (row) => `#${numeroEspacio(row.spotId)}` },
+    {
+      key: "vehicleId",
+      label: "Vehículo",
+      render: (row) => <span className="plate">{nombreVehiculo(row.vehicleId)}</span>,
+    },
+    { key: "spotId", label: "Espacio", render: (row) => <span className="mono">#{numeroEspacio(row.spotId)}</span> },
     { key: "entryTime", label: "Ingreso", render: (row) => formatearFecha(row.entryTime) },
     { key: "exitTime", label: "Egreso", render: (row) => formatearFecha(row.exitTime) },
     {
       key: "amountDue",
       label: "Monto",
-      render: (row) => (row.amountDue !== null ? `$${row.amountDue}` : "-"),
+      render: (row) => <span className="mono">{row.amountDue !== null ? `$${row.amountDue}` : "—"}</span>,
     },
-    { key: "status", label: "Estado" },
+    {
+      key: "status",
+      label: "Estado",
+      render: (row) => (
+        <span className={`badge ${row.status === "ACTIVE" ? "badge-success" : "badge-neutral"}`}>
+          {row.status === "ACTIVE" ? "Activa" : "Finalizada"}
+        </span>
+      ),
+    },
   ];
 
   if (cargando) return <p>Cargando...</p>;
@@ -74,6 +85,7 @@ function SessionsPage() {
   return (
     <div>
       <h1>Sesiones</h1>
+      <p className="subtitle">Registro de ingresos y egresos de la cochera.</p>
 
       <ErrorMessage message={error} />
 
@@ -82,11 +94,11 @@ function SessionsPage() {
         data={sesiones}
         renderActions={(sesion) =>
           sesion.status === "ACTIVE" ? (
-            <button onClick={() => handleCheckout(sesion)} style={{ padding: "6px 12px" }}>
+            <button className="secondary" onClick={() => handleCheckout(sesion)}>
               Registrar egreso
             </button>
           ) : (
-            <span style={{ color: "#999" }}>Finalizada</span>
+            <span style={{ color: "var(--text-muted)" }}>—</span>
           )
         }
       />
