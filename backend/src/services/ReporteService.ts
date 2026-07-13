@@ -3,10 +3,12 @@ import { SesionRepository } from "../repositories/SesionRepository";
 import { AbonoRepository } from "../repositories/AbonoRepository";
 import { EstadoSesion } from "../entities/Sesion";
 import { EstadoAbono } from "../entities/Abono";
+import { EstadoEspacio } from "../entities/Espacio";
 
 export class ReporteService {
   static async ocupacion() {
     const totalSpots = await EspacioRepository.count();
+    const outOfServiceSpots = await EspacioRepository.count({ where: { status: EstadoEspacio.OUT_OF_SERVICE } });
 
     // Espacios ocupados: con sesión ACTIVE, o reservados por un abono ACTIVE
     const spotIdsConSesionActiva = (
@@ -20,7 +22,7 @@ export class ReporteService {
     const spotIdsOcupados = new Set([...spotIdsConSesionActiva, ...spotIdsConAbonoActivo]);
     const occupiedSpots = spotIdsOcupados.size;
 
-    const availableSpots = totalSpots - occupiedSpots;
+    const availableSpots = totalSpots - occupiedSpots - outOfServiceSpots;
     const occupancyPercentage = totalSpots > 0 ? (occupiedSpots / totalSpots) * 100 : 0;
 
     // Revenue de hoy: sesiones ocasionales completadas hoy + abonos dados de alta hoy
