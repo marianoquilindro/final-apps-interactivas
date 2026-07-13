@@ -31,7 +31,7 @@ export class VehiculoService {
 
     const existente = await VehiculoRepository.findByLicensePlate(data.licensePlate);
     if (existente) {
-      throw { status: 409, message: `Ya existe un vehículo con licensePlate ${data.licensePlate}` };
+      throw { status: 409, message: `Ya existe un vehículo con esa patente ${data.licensePlate}` };
     }
 
     const vehiculo = VehiculoRepository.create({

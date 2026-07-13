@@ -35,7 +35,7 @@ export class AbonoService {
       throw { status: 404, message: "Espacio no encontrado" };
     }
     if (espacio.status === EstadoEspacio.OUT_OF_SERVICE) {
-      throw { status: 409, message: "El espacio está OUT_OF_SERVICE, no puede reservarse" };
+      throw { status: 409, message: "El espacio está fuera de servicio, no puede reservarse" };
     }
 
     // 3) Validar que el espacio no esté reservado por otro abono ACTIVE
