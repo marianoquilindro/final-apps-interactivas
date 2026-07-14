@@ -4,6 +4,7 @@ import { getVehiculos } from "../services/vehiculoService";
 import { getEspacios } from "../services/espacioService";
 import Table from "../components/Table";
 import ErrorMessage from "../components/ErrorMessage";
+import { getSesiones } from "../services/sesionService";
 
 function SubscriptionsPage() {
   const [abonos, setAbonos] = useState([]);
@@ -14,16 +15,47 @@ function SubscriptionsPage() {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(true);
 
+  const [espaciosConEstado, setEspaciosConEstado] = useState([]);
+
   const cargarDatos = async () => {
     try {
-      const [resAbonos, resVehiculos, resEspacios] = await Promise.all([
+      const [resAbonos, resVehiculos, resEspacios, resSesiones] = await Promise.all([
         getAbonos(),
         getVehiculos(),
         getEspacios(),
+        getSesiones(),
       ]);
       setAbonos(resAbonos.data);
       setVehiculos(resVehiculos.data);
       setEspacios(resEspacios.data);
+
+      const idsConSesionActiva = new Set(
+        resSesiones.data.filter((s) => s.status === "ACTIVE").map((s) => s.spotId)
+      );
+      const idsConAbonoActivo = new Set(
+        resAbonos.data.filter((a) => a.status === "ACTIVE").map((a) => a.spotId)
+      );
+
+      const conEstado = resEspacios.data.map((e) => {
+        let estado = "Disponible";
+        let disabled = false;
+
+        if (e.status === "OUT_OF_SERVICE") {
+          estado = "Fuera de servicio";
+          disabled = true;
+        } else if (idsConAbonoActivo.has(e.id)) {
+          estado = "Reservado por otro abono";
+          disabled = true;
+        } else if (idsConSesionActiva.has(e.id)) {
+          estado = "Ocupado ahora";
+          // No lo deshabilitamos: un auto ocasional puede irse y liberar el lugar
+          // antes de que el abono empiece a usarse, así que no es un impedimento real.
+        }
+
+        return { ...e, estadoLabel: estado, disabled };
+      });
+
+      setEspaciosConEstado(conEstado);
     } catch (err) {
       setError("Error al cargar los datos");
     } finally {
@@ -114,9 +146,9 @@ function SubscriptionsPage() {
 
         <select value={spotId} onChange={(e) => setSpotId(e.target.value)}>
           <option value="">Seleccionar espacio</option>
-          {espacios.map((e) => (
-            <option key={e.id} value={e.id}>
-              Espacio #{e.number}
+          {espaciosConEstado.map((e) => (
+            <option key={e.id} value={e.id} disabled={e.disabled}>
+              Espacio #{e.number} — {e.estadoLabel}
             </option>
           ))}
         </select>
