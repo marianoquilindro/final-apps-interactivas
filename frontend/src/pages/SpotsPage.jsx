@@ -22,7 +22,7 @@ function SpotsPage() {
 
       setEspacios(resEspacios.data);
 
-      // Un espacio está ocupado si tiene una sesión ACTIVE o un abono ACTIVE reservándolo
+      // Un espacio está ocupado si tiene una sesión activa o un abono activo reservándolo
       const idsConSesionActiva = resSesiones.data
         .filter((s) => s.status === "ACTIVE")
         .map((s) => s.spotId);

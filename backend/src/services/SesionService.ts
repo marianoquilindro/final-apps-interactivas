@@ -114,7 +114,7 @@ export class SesionService {
       throw { status: 404, message: "Sesión no encontrada" };
     }
 
-    // Regla 8: no se puede volver a finalizar una sesión ya COMPLETED
+    // No se puede volver a finalizar una sesión ya COMPLETED
     if (sesion.status === EstadoSesion.COMPLETED) {
       throw { status: 409, message: "La sesión ya está finalizada" };
     }

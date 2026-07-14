@@ -8,7 +8,7 @@ import { Sesion, EstadoSesion } from "./entities/Sesion";
 
 async function seed() {
   await AppDataSource.initialize();
-  console.log("🌱 Conectado a la base de datos, iniciando seed...");
+  console.log(" Conectado a la base de datos, iniciando seed...");
 
   const tarifaRepo = AppDataSource.getRepository(Tarifa);
   const espacioRepo = AppDataSource.getRepository(Espacio);
@@ -16,7 +16,7 @@ async function seed() {
   const abonoRepo = AppDataSource.getRepository(Abono);
   const sesionRepo = AppDataSource.getRepository(Sesion);
 
-  // 1) TARIFAS (idempotente: busca por vehicleType antes de crear)
+  // 1) TARIFAS 
   const tarifasData = [
     { vehicleType: TipoVehiculo.CAR, hourlyRate: 500, monthlyRate: 60000 },
     { vehicleType: TipoVehiculo.MOTORCYCLE, hourlyRate: 300, monthlyRate: 35000 },
@@ -33,7 +33,7 @@ async function seed() {
     tarifas[data.vehicleType] = tarifa;
   }
 
-  // 2) ESPACIOS (idempotente: busca por number antes de crear)
+  // 2) ESPACIOS 
   const espaciosData = [
     { number: 1, status: EstadoEspacio.AVAILABLE },
     { number: 2, status: EstadoEspacio.AVAILABLE },
@@ -52,7 +52,7 @@ async function seed() {
     espacios[data.number] = espacio;
   }
 
-  // 3) VEHICULOS (idempotente: busca por licensePlate antes de crear)
+  // 3) VEHICULOS
   const vehiculosData = [
     { licensePlate: "AA111AA", ownerName: "Juan Perez", type: TipoVehiculo.CAR, status: EstadoVehiculo.ACTIVE },
     { licensePlate: "BB222BB", ownerName: "Maria Gomez", type: TipoVehiculo.MOTORCYCLE, status: EstadoVehiculo.ACTIVE },
@@ -70,7 +70,7 @@ async function seed() {
     vehiculos[data.licensePlate] = vehiculo;
   }
 
-  // 4) ABONO (idempotente: busca un abono existente para ese vehiculo)
+  // 4) ABONO 
   const vehiculoAbonado = vehiculos["DD444DD"];
   const espacioAbono = espacios[4];
   const tarifaCar = tarifas[TipoVehiculo.CAR];
@@ -95,13 +95,12 @@ async function seed() {
     console.log("  ✔ Abono creado para DD444DD");
   }
 
-  // 5) SESIONES (idempotente: busca por combinación vehiculo+entryTime aproximado no es práctico,
-  // así que usamos un chequeo simple: si ya hay 4+ sesiones, no volvemos a sembrar)
+  // 5) SESIONES 
   const totalSesiones = await sesionRepo.count();
   if (totalSesiones === 0) {
     const ahora = new Date();
 
-    // Sesión ACTIVA, sin abono (vehiculo ocasional AA111AA, espacio 1)
+    // Sesión activa, sin abono (vehiculo ocasional AA111AA, espacio 1)
     await sesionRepo.save(
       sesionRepo.create({
         entryTime: new Date(ahora.getTime() - 2 * 60 * 60 * 1000), // hace 2 horas
@@ -114,7 +113,7 @@ async function seed() {
       })
     );
 
-    // Sesión COMPLETED, sin abono (vehiculo ocasional BB222BB, espacio 2)
+    // Sesión completa, sin abono (vehiculo ocasional BB222BB, espacio 2)
     const entryBB = new Date(ahora.getTime() - 3 * 60 * 60 * 1000); // hace 3 horas
     const exitBB = new Date(ahora.getTime() - 1 * 60 * 60 * 1000); // hace 1 hora
     const horasBB = Math.ceil((exitBB.getTime() - entryBB.getTime()) / (60 * 60 * 1000)); // 2 horas
@@ -132,7 +131,7 @@ async function seed() {
       })
     );
 
-    // Sesión COMPLETED, asociada al abono, de un día previo (vehiculo DD444DD, espacio 4)
+    // Sesión completa, asociada al abono, de un día previo (vehiculo DD444DD, espacio 4)
     const ayer = new Date(ahora);
     ayer.setDate(ayer.getDate() - 1);
     const entryAyer = new Date(ayer.setHours(9, 0, 0, 0));
@@ -150,7 +149,7 @@ async function seed() {
       })
     );
 
-    // Sesión COMPLETED, asociada al abono, de hoy ya finalizada (vehiculo DD444DD, espacio 4)
+    // Sesión completa, asociada al abono, de hoy ya finalizada (vehiculo DD444DD, espacio 4)
     const entryHoy = new Date(ahora.getTime() - 4 * 60 * 60 * 1000); // hace 4 horas
     const exitHoy = new Date(ahora.getTime() - 1 * 60 * 60 * 1000); // hace 1 hora
 
@@ -171,7 +170,7 @@ async function seed() {
     console.log("  ⏭ Ya existen sesiones, se omite la creación");
   }
 
-  console.log("🌱 Seed finalizado con éxito");
+  console.log(" Seed finalizado con éxito");
   await AppDataSource.destroy();
 }
 

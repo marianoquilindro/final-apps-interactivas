@@ -48,8 +48,6 @@ function SubscriptionsPage() {
           disabled = true;
         } else if (idsConSesionActiva.has(e.id)) {
           estado = "Ocupado ahora";
-          // No lo deshabilitamos: un auto ocasional puede irse y liberar el lugar
-          // antes de que el abono empiece a usarse, así que no es un impedimento real.
         }
 
         return { ...e, estadoLabel: estado, disabled };

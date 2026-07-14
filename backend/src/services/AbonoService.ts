@@ -20,7 +20,7 @@ export class AbonoService {
       throw { status: 422, message: "vehicleId y spotId son obligatorios y deben ser numéricos" };
     }
 
-    // 1) Validar que el vehículo exista y no esté BLOCKED
+    // Validar que el vehículo exista y no esté bloqueado
     const vehiculo = await VehiculoRepository.findOneBy({ id: data.vehicleId });
     if (!vehiculo) {
       throw { status: 404, message: "Vehículo no encontrado" };
@@ -34,7 +34,7 @@ export class AbonoService {
       throw { status: 409, message: "El vehículo ya tiene un abono activo vigente" };
     }
 
-    // 2) Validar que el espacio exista y no esté OUT_OF_SERVICE
+    // Validar que el espacio exista y no este fuera de servicio
     const espacio = await EspacioRepository.findOneBy({ id: data.spotId });
     if (!espacio) {
       throw { status: 404, message: "Espacio no encontrado" };
@@ -43,19 +43,19 @@ export class AbonoService {
       throw { status: 409, message: "El espacio está fuera de servicio, no puede reservarse" };
     }
 
-    // 3) Validar que el espacio no esté reservado por otro abono ACTIVE
+    // Validar que el espacio no este reservado por otro abono
     const abonoExistenteEnEspacio = await AbonoRepository.findActiveBySpot(data.spotId);
     if (abonoExistenteEnEspacio) {
       throw { status: 409, message: "El espacio ya está reservado por otro abono activo" };
     }
 
-    // 4) Buscar la tarifa correspondiente al tipo de vehículo
+    // Buscar la tarifa correspondiente al tipo de vehículo
     const tarifa = await TarifaRepository.findByVehicleType(vehiculo.type);
     if (!tarifa) {
       throw { status: 500, message: `No existe tarifa configurada para ${vehiculo.type}` };
     }
 
-    // 5) Calcular fechas y monto automáticamente (el cliente no puede enviarlas)
+    // Calcular fechas y monto automáticamente
     const startDate = new Date();
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
@@ -82,7 +82,7 @@ export class AbonoService {
       throw { status: 409, message: "El abono ya está finalizado" };
     }
 
-    // Regla 10: no puede haber una sesión ACTIVE abierta bajo este abono
+    // No puede haber una sesión ACTIVE abierta bajo este abono
     const sesionActiva = await SesionRepository.findActiveBySubscription(abono.id);
     if (sesionActiva) {
       throw { status: 409, message: "Hay una sesión activa bajo este abono, el vehículo debe egresar primero" };
@@ -90,7 +90,6 @@ export class AbonoService {
 
     abono.status = EstadoAbono.COMPLETED;
     return AbonoRepository.save(abono);
-    // Nota: el espacio queda libre automáticamente porque la "reserva" no es un campo
-    // en Espacio, sino que se calcula dinámicamente buscando abonos ACTIVE por spotId.
+    
   }
 }

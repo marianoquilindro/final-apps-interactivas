@@ -10,7 +10,7 @@ export class ReporteService {
     const totalSpots = await EspacioRepository.count();
     const outOfServiceSpots = await EspacioRepository.count({ where: { status: EstadoEspacio.OUT_OF_SERVICE } });
 
-    // Espacios ocupados: con sesión ACTIVE, o reservados por un abono ACTIVE
+    // Espacios ocupados: con sesión activa, o reservados por un abono activo
     const spotIdsConSesionActiva = (
       await SesionRepository.find({ where: { status: EstadoSesion.ACTIVE } })
     ).map((s) => s.spotId);
