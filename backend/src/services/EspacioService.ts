@@ -9,8 +9,12 @@ export class EspacioService {
   }
 
   static async crear(data: { number: number; status?: EstadoEspacio }) {
-    if (data.number === undefined || data.number === null || typeof data.number !== "number" || isNaN(data.number)) {
-      throw { status: 422, message: "El campo 'number' es obligatorio y debe ser numérico" };
+    if (
+      data.number === undefined || data.number === null ||
+      typeof data.number !== "number" || isNaN(data.number) ||
+      data.number <= 0
+    ) {
+      throw { status: 422, message: "El campo 'número' es obligatorio, numérico y mayor a 0" };
     }
 
     if (data.status && !Object.values(EstadoEspacio).includes(data.status)) {

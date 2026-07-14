@@ -26,7 +26,12 @@ export class AbonoService {
       throw { status: 404, message: "Vehículo no encontrado" };
     }
     if (vehiculo.status === EstadoVehiculo.BLOCKED) {
-      throw { status: 409, message: "El vehículo está BLOCKED, no puede tener un abono" };
+      throw { status: 409, message: "El vehículo está bloqueado, no puede tener un abono" };
+    }
+
+    const abonoActivoDelVehiculo = await AbonoRepository.findActiveByVehicle(vehiculo.id);
+    if (abonoActivoDelVehiculo) {
+      throw { status: 409, message: "El vehículo ya tiene un abono activo vigente" };
     }
 
     // 2) Validar que el espacio exista y no esté OUT_OF_SERVICE
