@@ -17,7 +17,7 @@ export class VehiculoService {
       !data.ownerName || typeof data.ownerName !== "string" ||
       !data.type
     ) {
-      throw { status: 422, message: "licensePlate, ownerName y type son obligatorios y deben tener formato válido" };
+      throw { status: 422, message: "Patente, Nombre y tipo son obligatorios y deben tener formato válido" };
     }
 
     if (!Object.values(TipoVehiculo).includes(data.type)) {
